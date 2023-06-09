@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const app = express();
-const API_KEY = '9763ec5293e2649d10972e80cffd200b8';
 
 app.use(bodyParser.urlencoded({extended: true}));
 require('dotenv').config();
@@ -13,15 +12,18 @@ app.get('/', (req, res) => {
 
 app.post("/", async(req, res) => {
     let location = await req.body.city;
-    // let url = `http://api.openweathermap.org/data/2.5/weather?q=${location}&appid=763ec5293e2649d10972e80cffd200b8&units=metric`;
-    const url = `http://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${API_KEY}&units=metric`;
+    const url = `http://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${process.env.APIKEY}&units=metric`;
     const response = await fetch(url);
     const weatherData = await response.json();
-    console.log(weatherData);
+    const temp = Math.floor(weatherData.main.temp);
+    const weatherDescription = weatherData.weather[0].description;
+    const icon = weatherData.weather[0].icon;
+    const imageUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+    res.write(`<h1>The current weather in ${location} is ${weatherDescription}</h1>`);
+    res.write(`<h1>The current temperature is ${temp} degree Celsius</h1>`);
+    res.write(`<img src=${imageUrl}>`);
 });
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000.');
 });
-
-// API Key 95a8024d673400e37943f56c5cfa07a5
